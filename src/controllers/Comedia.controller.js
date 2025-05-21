@@ -44,6 +44,7 @@ const insercion_Comedia = async (recibido, respuesta) => {
         await nuevoAnime.save();
         respuesta.status(201).json({ mensaje: "Anime de comedia agregado", anime: nuevoAnime });
     } catch (error) {
+        console.error("Error en actualizar_Comedia:", error);
         respuesta.status(500).json({ error: error.message });
     }
 };
@@ -85,6 +86,7 @@ const actualizar_Comedia = async (recibido, respuesta) => {
             return respuesta.status(201).json({ mensaje: "Anime no encontrado. Se creó nuevo", animeNuevo: nuevoAnime });
         }
     } catch (error) {
+        console.error("Error en actualizar_Comedia:", error);
         respuesta.status(500).json({ error: error.message });
     }
 };
@@ -102,6 +104,7 @@ const eliminar_Comedia = async (recibido, respuesta) => {
 
         respuesta.status(200).json({ mensaje: "Anime eliminado correctamente" });
     } catch (error) {
+        console.error("Error en actualizar_Comedia:", error);
         respuesta.status(500).json({ error: error.message });
     }
 };

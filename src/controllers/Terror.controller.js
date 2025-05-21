@@ -63,7 +63,7 @@ const actualizar_Terror = async (recibido, respuesta) => {
         if(respuesta.user.rol !== "2") return respuesta.status(500).json({"msj":"no tienes permisos para efectuar esta accion"});
         const nombreActual = recibido.params.nombreAnime;
         const { nombre, descripcion, año_emision, img } = recibido.body;
-
+        if (!nombre || !descripcion || !año_emision || !img) return respuesta.status(400).json({error:"todos los campos son obligatorios"}); 
         const animeExistente = await Terror.findOne({ nombre: nombreActual });
 
         if (animeExistente) {

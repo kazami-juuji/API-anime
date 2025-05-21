@@ -11,6 +11,7 @@ const authMiddleware = (recibido, respuesta, next) => {
         respuesta.user = decodificado;
         next();
     }catch(error) {
+          console.log("Error en token:", error.message);
         respuesta.status(500).json({"msj": "Se ha generado un error token no valido"})
     }
 }

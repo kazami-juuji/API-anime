@@ -6,12 +6,19 @@ import { consultaComedia, consulta_individual_Comedia, insercion_Comedia, actual
 import { consultaRomance, consulta_individual_Romance, insercion_Romance, actualizar_Romance, eliminar_Romance } from '../controllers/Romance.controller.js';
 import authMiddleware from '../config/authMiddleware.js';
 // import { consultaUsuarios, consulta_individual_Usuario, insercion_Usuario, actualizar_Usuario, eliminar_Usuario, iniciar_sesion } from "../controllers/Usuarios.controller.js";
-import { registro_usuario, iniciar_sesion } from '../controllers/Usuarios.controller.js';
+import  upload from  "../config/archivosConfig.js"
+import { registro_usuario, iniciar_sesion, consultaUsuario, editar_usuario, eliminar_usuario } from '../controllers/Usuarios.controller.js';
+import cargar_imagen from '../controllers/Archivos.controller.js';
 const router = Router();
 
+
+router.post("/imagen", upload.single('image'),cargar_imagen)
 // Usuario
+router.get("/usuario", consultaUsuario);
 router.post("/registro", registro_usuario)
 router.post("/login", iniciar_sesion)
+router.put("/usuario/actualizar/:nombreUsuario", authMiddleware, editar_usuario)
+router.delete("/usuario/eliminar/:nombreUsuario", authMiddleware, eliminar_usuario)
 
 // 👻  Terror
 router.get("/terror", consultaTerror);
