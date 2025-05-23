@@ -5,20 +5,40 @@ import { consultaTerror, consulta_individual_Terror, insercion_Terror, actualiza
 import { consultaComedia, consulta_individual_Comedia, insercion_Comedia, actualizar_Comedia, eliminar_Comedia } from '../controllers/Comedia.controller.js';
 import { consultaRomance, consulta_individual_Romance, insercion_Romance, actualizar_Romance, eliminar_Romance } from '../controllers/Romance.controller.js';
 import authMiddleware from '../config/authMiddleware.js';
-// import { consultaUsuarios, consulta_individual_Usuario, insercion_Usuario, actualizar_Usuario, eliminar_Usuario, iniciar_sesion } from "../controllers/Usuarios.controller.js";
-import  upload from  "../config/archivosConfig.js"
-import { registro_usuario, iniciar_sesion, consultaUsuario, editar_usuario, eliminar_usuario } from '../controllers/Usuarios.controller.js';
-import cargar_imagen from '../controllers/Archivos.controller.js';
+import  uploads from  "../config/archivosConfig.js"
+import { registro_usuario, iniciar_sesion, consultaUsuario, editar_usuario, eliminar_usuario, manejar_estado } from '../controllers/Usuarios.controller.js';
+import {cargar_imagen, eliminar_imagen} from '../controllers/Archivos.controller.js';
 const router = Router();
+import fs from 'fs';
+import path from 'path';
+
+router.post("/subir", uploads.single('imagen'),cargar_imagen);
+router.delete("/eliminar/:nombre",eliminar_imagen);
+// Ruta para listar imágenes existentes en la carpeta uploads
+router.get("/imagenes", (req, res) => {
+  const directorio = path.join(process.cwd(), 'uploads');
+
+  fs.readdir(directorio, (err, archivos) => {
+    if (err) {
+      return res.status(500).json({ estatus: "error", msj: "Error al leer la carpeta" });
+    }
+
+    const imagenes = archivos.filter(nombre =>
+      ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(path.extname(nombre).toLowerCase())
+    );
+
+    res.json(imagenes);
+  });
+});
 
 
-router.post("/imagen", upload.single('image'),cargar_imagen)
 // Usuario
 router.get("/usuario", consultaUsuario);
 router.post("/registro", registro_usuario)
 router.post("/login", iniciar_sesion)
 router.put("/usuario/actualizar/:nombreUsuario", authMiddleware, editar_usuario)
 router.delete("/usuario/eliminar/:nombreUsuario", authMiddleware, eliminar_usuario)
+router.put("/manejar_estado/:nombre", manejar_estado)
 
 // 👻  Terror
 router.get("/terror", consultaTerror);
@@ -41,11 +61,5 @@ router.post("/romance/insercion", authMiddleware, insercion_Romance);
 router.put("/romance/actualizar/:nombreAnime", authMiddleware, actualizar_Romance);
 router.delete("/romance/eliminar/:nombreAnime", authMiddleware, eliminar_Romance);
 
-// 👨‍💻 Usuarios
-// router.get("/usuarios", consultaUsuarios);
-// router.get("/usuarios/:usuario", consulta_individual_Usuario);
-// router.post("/usuarios/insercion", insercion_Usuario);
-// router.put("/usuarios/actualizar/:usuario", actualizar_Usuario);
-// router.delete("/usuarios/eliminar/:usuario", eliminar_Usuario);
 
 export default router;

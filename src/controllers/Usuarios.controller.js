@@ -21,7 +21,7 @@ const registro_usuario = async (recibido, respuesta) => {
     try {
         const {usuario, password, } = recibido.body;
         const cifrado = await bcrypt.hash(password,10)
-        const registro = new Usuarios({"usuario":usuario, "password": cifrado, "rol": "2", "estado": 0});
+        const registro = new Usuarios({"usuario":usuario, "password": cifrado, "rol": "1", "estado": 0});
         await registro.save();
         respuesta.status(201).json({"msj":"Usuario registrado", "registro":registro})
     } catch(error) {
@@ -83,7 +83,8 @@ const iniciar_sesion = async (recibido, respuesta) => {
         if (!consultaUsuario) return respuesta.status(500).json({"msj":`El usuario ${usuario} no esta registrado!`});
         let comparacion = await bcrypt.compare(password, consultaUsuario.password)
         if (!comparacion) return respuesta.status(500).json({"msj":"Credenciales de acceso no validas!"});
-
+        if (consultaUsuario.estado === "2") return res.status(500).json({"msj":"Tu cuenta ha sido desactivada!","icon":"warning"});
+        // usuario.estado = "1"
         const token = jwt.sign(
             {
             "id":consultaUsuario._id,
@@ -94,10 +95,24 @@ const iniciar_sesion = async (recibido, respuesta) => {
                 "expiresIn":"1h"
             }
         );
-        respuesta.status(200).json({"msj":"Inicio de Sesion exitoso", "token":token,"usuario":consultaUsuario.usuario});
+        respuesta.status(200).json({"msj":"Inicio de Sesion exitoso", "token":token,"usuario":consultaUsuario.usuario, "rol":consultaUsuario.rol, "estado":consultaUsuario.estado});
     } catch(error){
         respuesta.status(500).json({"msj": error.msj});
     }
+
+}
+const manejar_estado = async (req,res) => {
+    try {
+        const {estado} = req.body;
+        const userParam = req.params.nombre;
+        
+        await Usuarios.updateOne({"usuario":userParam},{$set:{"estado":estado}});
+        return res.status(200).json({"msj": `estado cambiado ${estado}`});
+       
+
+    } catch (error) {
+        res.status(500).json({"msj":error.message});
+    }
 }
 
-export {registro_usuario, iniciar_sesion, consultaUsuario, editar_usuario, eliminar_usuario};
+export {registro_usuario, iniciar_sesion, consultaUsuario, editar_usuario, eliminar_usuario, manejar_estado};
